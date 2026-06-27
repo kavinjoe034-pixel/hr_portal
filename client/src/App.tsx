@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard'
 import Jobs from './pages/Jobs'
 import Interviews from './pages/Interviews'
 import Apply from './pages/Apply'
+import CandidateProfile from './pages/CandidateProfile'
 
 const queryClient = new QueryClient()
 
@@ -38,6 +39,7 @@ function AppRoutes() {
         }
       >
         <Route path="/" element={<Dashboard />} />
+        <Route path="/candidates/:id" element={<CandidateProfile />} />
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/interviews" element={<Interviews />} />
       </Route>
