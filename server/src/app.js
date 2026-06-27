@@ -6,6 +6,7 @@ const path = require('path');
 const { port, clientUrl, uploadDir } = require('./config/env');
 const { connectDB } = require('./config/db');
 const authRoutes = require('./routes/auth');
+const jobRoutes = require('./routes/jobs');
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/jobs', jobRoutes);
 
 const startServer = async () => {
   try {
