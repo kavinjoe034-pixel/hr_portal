@@ -13,6 +13,38 @@ const Candidate = require('../models/Candidate');
 const Interview = require('../models/Interview');
 const TimelineEvent = require('../models/TimelineEvent');
 const { logEvent } = require('../utils/timeline');
+const { generateOfferLetter, generateNda } = require('../services/pdfService');
+const { PDFDocument, rgb, StandardFonts } = require('pdf-lib');
+const fs = require('fs');
+
+const createResumePdf = async (name, role) => {
+  const pdfDoc = await PDFDocument.create();
+  const page = pdfDoc.addPage([612, 792]);
+  const { width, height } = page.getSize();
+  const bold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  let y = height - 60;
+  page.drawText(name, { x: 60, y, size: 24, font: bold });
+  y -= 30;
+  page.drawText(role, { x: 60, y, size: 14, font, color: rgb(0.4, 0.4, 0.4) });
+  y -= 40;
+  page.drawText('Experience', { x: 60, y, size: 16, font: bold });
+  y -= 25;
+  page.drawText('Senior Engineer at Example Co — 2020 to Present', { x: 60, y, size: 11, font });
+  y -= 20;
+  page.drawText('Engineer at Previous Inc — 2017 to 2020', { x: 60, y, size: 11, font });
+  y -= 40;
+  page.drawText('Education', { x: 60, y, size: 16, font: bold });
+  y -= 25;
+  page.drawText('B.S. Computer Science, Example University', { x: 60, y, size: 11, font });
+  const bytes = await pdfDoc.save();
+  const filename = `resume-${uuidv4()}.pdf`;
+  const uploadDirPath = path.resolve(process.env.UPLOAD_DIR || path.join(__dirname, '../../uploads'));
+  if (!fs.existsSync(uploadDirPath)) fs.mkdirSync(uploadDirPath, { recursive: true });
+  const outputPath = path.join(uploadDirPath, filename);
+  fs.writeFileSync(outputPath, bytes);
+  return `/uploads/${filename}`;
+};
 
 const main = async () => {
   await connectDB();
@@ -77,6 +109,8 @@ const main = async () => {
     email: 'alice.johnson@example.com',
     jobId: seniorFSE._id,
     status: 'Applied',
+    resumeUrl: await createResumePdf('Alice Johnson', 'Senior Full-Stack Engineer'),
+    resumeOriginalName: 'alice-johnson-resume.pdf',
     magicToken: uuidv4(),
     magicTokenExpiresAt: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000),
     magicTokenUsed: false
@@ -89,6 +123,8 @@ const main = async () => {
     email: 'bob.smith@example.com',
     jobId: productDesigner._id,
     status: 'Form Submitted',
+    resumeUrl: await createResumePdf('Bob Smith', 'Product Designer'),
+    resumeOriginalName: 'bob-smith-resume.pdf',
     magicTokenUsed: true,
     ...candidateForm({
       phone: '+1 555 0101',
@@ -108,6 +144,8 @@ const main = async () => {
     email: 'carol.white@example.com',
     jobId: seniorFSE._id,
     status: 'Interview Scheduled',
+    resumeUrl: await createResumePdf('Carol White', 'Software Engineer'),
+    resumeOriginalName: 'carol-white-resume.pdf',
     magicTokenUsed: true,
     ...candidateForm({
       phone: '+1 555 0102',
@@ -136,11 +174,26 @@ const main = async () => {
   await logEvent(carol._id, 'Interview Completed', 'Interview completed', 'Technical interview completed. Recommendation: hire.', { interviewId: carolInterview._id, recommendation: 'hire' });
 
   // David Lee — Offer Sent
+  const davidStartDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+  const [davidOfferUrl, davidNdaUrl] = await Promise.all([
+    generateOfferLetter({
+      candidateName: 'David Lee',
+      roleTitle: 'Senior Full-Stack Engineer',
+      salaryCurrency: 'USD',
+      salaryAmount: 160000,
+      startDate: davidStartDate,
+      reportingManager: 'Alex Thompson',
+      location: 'San Francisco, CA'
+    }),
+    generateNda({ candidateName: 'David Lee' })
+  ]);
   const david = await Candidate.create({
     name: 'David Lee',
     email: 'david.lee@example.com',
     jobId: seniorFSE._id,
     status: 'Offer Sent',
+    resumeUrl: await createResumePdf('David Lee', 'Senior Software Engineer'),
+    resumeOriginalName: 'david-lee-resume.pdf',
     magicTokenUsed: true,
     ...candidateForm({
       phone: '+1 555 0103',
@@ -154,17 +207,17 @@ const main = async () => {
       roleTitle: 'Senior Full-Stack Engineer',
       salaryCurrency: 'USD',
       salaryAmount: 160000,
-      startDate: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000),
+      startDate: davidStartDate,
       reportingManager: 'Alex Thompson',
       location: 'San Francisco, CA',
-      offerLetterUrl: '/uploads/offer-david.pdf',
-      ndaUrl: '/uploads/nda-david.pdf',
+      offerLetterUrl: davidOfferUrl,
+      ndaUrl: davidNdaUrl,
       generatedAt: now
     }
   });
   await logEvent(david._id, 'Applied', 'Application received', 'David Lee applied for Senior Full-Stack Engineer.');
   await logEvent(david._id, 'Form Submitted', 'Candidate form submitted', 'David Lee completed the magic-link form.');
-  await logEvent(david._id, 'Offer Sent', 'Offer sent', 'Offer letter and NDA sent to David Lee.', { offerLetterUrl: david.offer.offerLetterUrl, ndaUrl: david.offer.ndaUrl });
+  await logEvent(david._id, 'Offer Sent', 'Offer sent', 'Offer letter and NDA sent to David Lee.', { offerLetterUrl: davidOfferUrl, ndaUrl: davidNdaUrl });
 
   // Eve Brown — Rejected
   const eve = await Candidate.create({
@@ -172,6 +225,8 @@ const main = async () => {
     email: 'eve.brown@example.com',
     jobId: productDesigner._id,
     status: 'Rejected',
+    resumeUrl: await createResumePdf('Eve Brown', 'UX Designer'),
+    resumeOriginalName: 'eve-brown-resume.pdf',
     magicTokenUsed: true,
     rejectionReason: 'Role filled internally',
     ...candidateForm({

@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const puppeteer = require('puppeteer');
+const { PDFDocument, rgb, StandardFonts } = require('pdf-lib');
 const { uploadDir } = require('../config/env');
 
 const TEMPLATES_DIR = path.join(__dirname, '..', 'templates');
@@ -78,21 +79,100 @@ const generatePdf = async (templateName, data) => {
   const filename = `${templateName}-${uuidv4()}.pdf`;
   const outputPath = path.join(uploadDir, filename);
 
-  const browser = await launchBrowser();
   try {
-    const page = await browser.newPage();
-    await page.setContent(populatedHtml, { waitUntil: 'networkidle0' });
-    await page.pdf({
-      path: outputPath,
-      format: 'A4',
-      printBackground: true,
-      margin: { top: '0', right: '0', bottom: '0', left: '0' },
-    });
-  } finally {
-    await browser.close();
+    const browser = await launchBrowser();
+    try {
+      const page = await browser.newPage();
+      await page.setContent(populatedHtml, { waitUntil: 'networkidle0' });
+      await page.pdf({
+        path: outputPath,
+        format: 'A4',
+        printBackground: true,
+        margin: { top: '0', right: '0', bottom: '0', left: '0' },
+      });
+    } finally {
+      await browser.close();
+    }
+    return `/uploads/${filename}`;
+  } catch (error) {
+    console.warn('Puppeteer PDF generation failed, using pdf-lib fallback:', error.message);
+    return generateFallbackPdf(templateName, data, outputPath);
+  }
+};
+
+const generateFallbackPdf = async (templateName, data, outputPath) => {
+  const pdfDoc = await PDFDocument.create();
+  const page = pdfDoc.addPage([612, 792]); // Letter size
+  const { width, height } = page.getSize();
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const bold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  let y = height - 60;
+
+  const addLine = (text, options = {}) => {
+    const size = options.size || 12;
+    const f = options.bold ? bold : font;
+    const color = options.color || rgb(0, 0, 0);
+    page.drawText(text, { x: 60, y, size, font: f, color });
+    y -= size + (options.gap || 8);
+  };
+
+  const addWrapped = (text, options = {}) => {
+    const size = options.size || 11;
+    const f = options.bold ? bold : font;
+    const maxWidth = width - 120;
+    const words = text.split(' ');
+    let line = '';
+    for (const word of words) {
+      const test = line ? `${line} ${word}` : word;
+      const w = f.widthOfTextAtSize(test, size);
+      if (w > maxWidth && line) {
+        page.drawText(line, { x: 60, y, size, font: f });
+        y -= size + 4;
+        line = word;
+      } else {
+        line = test;
+      }
+    }
+    if (line) {
+      page.drawText(line, { x: 60, y, size, font: f });
+      y -= size + 8;
+    }
+  };
+
+  page.drawText('ROVE', { x: 60, y, size: 24, font: bold, color: rgb(0.1, 0.1, 0.1) });
+  y -= 40;
+
+  if (templateName === 'offer-letter') {
+    addLine('OFFER LETTER', { size: 18, bold: true, gap: 16 });
+    addLine(`Date: ${data.date || formatDate(new Date())}`);
+    addLine(`Candidate: ${data.candidateName || ''}`);
+    y -= 10;
+    addWrapped(`Dear ${data.candidateName || 'Candidate'},`);
+    addWrapped(`We are pleased to offer you the position of ${data.role || 'Role'} at ROVE. This offer includes a compensation package of ${data.salaryAmount || ''}, reporting to ${data.reportingManager || 'Hiring Manager'}, based in ${data.location || 'Remote / TBD'}. Your expected start date is ${data.startDate || 'TBD'}.`);
+    addWrapped('This offer is contingent upon the successful completion of reference checks and your acceptance of the accompanying NDA.');
+    y -= 20;
+    addLine('Accepted by candidate: _________________________', { size: 11 });
+    addLine(`Date: ${data.date || formatDate(new Date())}`, { size: 11 });
+    y -= 10;
+    addLine('For ROVE', { size: 11, bold: true });
+    addLine('_________________________', { size: 11 });
+  } else {
+    addLine('NON-DISCLOSURE AGREEMENT', { size: 18, bold: true, gap: 16 });
+    addLine(`Date: ${data.date || formatDate(new Date())}`);
+    addLine(`Party: ${data.candidateName || ''}`);
+    y -= 10;
+    addWrapped('This Non-Disclosure Agreement ("Agreement") is entered into by and between ROVE and the party named above. The party agrees to hold all confidential information disclosed by ROVE in strict confidence and not disclose such information to any third parties without prior written consent.');
+    addWrapped('This agreement shall remain in effect for the duration of the relationship and survive termination for a period of two years.');
+    y -= 20;
+    addLine('Signed: _________________________', { size: 11 });
+    addLine(`Date: ${data.date || formatDate(new Date())}`, { size: 11 });
+    addLine('For ROVE', { size: 11, bold: true });
+    addLine('_________________________', { size: 11 });
   }
 
-  return `/uploads/${filename}`;
+  const pdfBytes = await pdfDoc.save();
+  fs.writeFileSync(outputPath, pdfBytes);
+  return `/uploads/${path.basename(outputPath)}`;
 };
 
 const generateOfferLetter = async (data) => {

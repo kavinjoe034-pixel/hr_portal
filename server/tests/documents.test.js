@@ -7,10 +7,7 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 const { app } = require('../src/app');
 const { uploadDir } = require('../src/config/env');
 
-jest.mock('../src/services/pdfService', () => ({
-  generateOfferLetter: jest.fn(() => Promise.resolve(`/uploads/offer-letter-${Date.now()}.pdf`)),
-  generateNda: jest.fn(() => Promise.resolve(`/uploads/nda-${Date.now()}.pdf`)),
-}));
+
 const User = require('../src/models/User');
 const Job = require('../src/models/Job');
 const Candidate = require('../src/models/Candidate');
@@ -112,9 +109,11 @@ describe('POST /api/documents/candidates/:id', () => {
     expect(timeline).toHaveLength(1);
     expect(timeline[0].type).toBe('Offer Sent');
 
-    // PDF generation is mocked in test environment to avoid Chromium deps
-    expect(response.body.offerUrl).toContain('/uploads/');
-    expect(response.body.ndaUrl).toContain('/uploads/');
+    expect(response.body.offerUrl).toMatch(/\/uploads\/offer-letter-[\w-]+\.pdf$/);
+    expect(response.body.ndaUrl).toMatch(/\/uploads\/nda-[\w-]+\.pdf$/);
+
+    expect(fs.existsSync(path.join(uploadDir, path.basename(response.body.offerUrl)))).toBe(true);
+    expect(fs.existsSync(path.join(uploadDir, path.basename(response.body.ndaUrl)))).toBe(true);
   }, 60000);
 
   it('rejects generation for candidate in Applied status', async () => {
