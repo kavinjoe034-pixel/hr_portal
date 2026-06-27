@@ -8,6 +8,7 @@ const { connectDB } = require('./config/db');
 const authRoutes = require('./routes/auth');
 const jobRoutes = require('./routes/jobs');
 const candidateRoutes = require('./routes/candidates');
+const applyRoutes = require('./routes/apply');
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/candidates', candidateRoutes);
+app.use('/api/apply', applyRoutes);
 
 const startServer = async () => {
   try {
