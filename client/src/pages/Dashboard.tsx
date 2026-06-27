@@ -4,7 +4,9 @@ import { useNavigate } from 'react-router-dom'
 import api from '../lib/api'
 import { Input } from '../components/ui/Input'
 import { Badge } from '../components/ui/Badge'
-import { Search } from 'lucide-react'
+import { Button } from '../components/ui/Button'
+import AddCandidateForm from '../components/candidates/AddCandidateForm'
+import { Search, Plus } from 'lucide-react'
 
 type CandidateStatus =
   | 'Applied'
@@ -66,6 +68,7 @@ export default function Dashboard() {
   const navigate = useNavigate()
   const [status, setStatus] = useState('')
   const [q, setQ] = useState('')
+  const [showAddCandidate, setShowAddCandidate] = useState(false)
 
   const { data: candidates = [], isLoading, isError } = useQuery({
     queryKey: ['candidates', { status, q }],
@@ -79,7 +82,20 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold text-gray-900">Candidates</h1>
           <p className="text-gray-500">Track and manage your hiring pipeline.</p>
         </div>
+        <Button
+          onClick={() => setShowAddCandidate((prev) => !prev)}
+          variant="secondary"
+          className="flex items-center gap-2"
+          aria-expanded={showAddCandidate}
+        >
+          <Plus className="h-4 w-4" />
+          {showAddCandidate ? 'Cancel' : 'Add Candidate'}
+        </Button>
       </div>
+
+      {showAddCandidate && (
+        <AddCandidateForm onSuccess={() => setShowAddCandidate(false)} />
+      )}
 
       <div className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:flex-row">
         <div className="relative flex-1">
