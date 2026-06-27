@@ -33,5 +33,9 @@
     "hr",
     "rove-hire"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "jest": {
+    "testEnvironment": "node",
+    "testTimeout": 30000
+  }
 }
