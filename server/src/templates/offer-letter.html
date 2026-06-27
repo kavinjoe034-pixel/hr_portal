@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offer Letter - {{candidateName}}</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 60px 56px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.6;
+      color: #1f2937;
+      margin: 0;
+      padding: 0;
+    }
+
+    .header {
+      border-bottom: 3px solid #2563eb;
+      padding-bottom: 18px;
+      margin-bottom: 36px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      background: #2563eb;
+      color: #ffffff;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .company-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: #111827;
+      margin: 0;
+    }
+
+    .document-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2563eb;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0;
+    }
+
+    .meta {
+      margin-bottom: 28px;
+    }
+
+    .meta-row {
+      margin-bottom: 6px;
+    }
+
+    .label {
+      font-weight: 700;
+      color: #374151;
+    }
+
+    .address {
+      margin-bottom: 28px;
+      color: #4b5563;
+    }
+
+    .salutation {
+      margin-bottom: 16px;
+    }
+
+    .body-text {
+      margin-bottom: 14px;
+      text-align: justify;
+    }
+
+    .details-box {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 18px 20px;
+      margin: 20px 0 24px;
+    }
+
+    .details-box .meta-row {
+      margin-bottom: 8px;
+    }
+
+    .details-box .meta-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .closing {
+      margin-top: 28px;
+    }
+
+    .signature-block {
+      margin-top: 56px;
+      display: flex;
+      justify-content: space-between;
+      gap: 40px;
+    }
+
+    .signature {
+      flex: 1;
+    }
+
+    .signature-line {
+      border-top: 1px solid #9ca3af;
+      width: 100%;
+      max-width: 240px;
+      margin-top: 48px;
+      padding-top: 6px;
+      font-size: 10pt;
+      color: #4b5563;
+    }
+
+    .footer {
+      margin-top: 48px;
+      padding-top: 16px;
+      border-top: 1px solid #e5e7eb;
+      font-size: 9pt;
+      color: #9ca3af;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      <div class="logo">R</div>
+      <div>
+        <p class="company-name">ROVE Hire</p>
+      </div>
+    </div>
+    <p class="document-title">Offer Letter</p>
+  </div>
+
+  <div class="meta">
+    <div class="meta-row"><span class="label">Date:</span> {{date}}</div>
+    <div class="meta-row"><span class="label">Candidate:</span> {{candidateName}}</div>
+  </div>
+
+  <div class="address">
+    <p class="label">{{candidateName}}</p>
+    <p>Address on file</p>
+  </div>
+
+  <p class="salutation">Dear {{candidateName}},</p>
+
+  <p class="body-text">
+    We are delighted to offer you the position of <strong>{{role}}</strong> at ROVE Hire.
+    We were impressed by your background and are confident that you will make a meaningful
+    contribution to our team.
+  </p>
+
+  <div class="details-box">
+    <div class="meta-row"><span class="label">Role:</span> {{role}}</div>
+    <div class="meta-row"><span class="label">Annual salary:</span> {{salaryCurrency}} {{salaryAmount}}</div>
+    <div class="meta-row"><span class="label">Start date:</span> {{startDate}}</div>
+    <div class="meta-row"><span class="label">Reporting manager:</span> {{reportingManager}}</div>
+    <div class="meta-row"><span class="label">Location:</span> {{location}}</div>
+  </div>
+
+  <p class="body-text">
+    This offer is contingent upon the successful completion of our onboarding process,
+    including a signed Non-Disclosure Agreement. Please review the attached NDA and return
+    both signed documents to confirm your acceptance.
+  </p>
+
+  <p class="body-text">
+    We look forward to welcoming you to ROVE Hire. If you have any questions about this offer,
+    please contact your hiring manager.
+  </p>
+
+  <div class="closing">
+    <p>Sincerely,</p>
+  </div>
+
+  <div class="signature-block">
+    <div class="signature">
+      <div class="signature-line">ROVE Hire Talent Team</div>
+    </div>
+    <div class="signature">
+      <div class="signature-line">{{candidateName}} — Candidate</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    ROVE Hire — Confidential Offer Letter
+  </div>
+</body>
+</html>

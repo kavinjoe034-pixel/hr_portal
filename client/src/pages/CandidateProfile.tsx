@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import {
   Mail,
   Phone,
@@ -28,6 +28,7 @@ import { Button } from '../components/ui/Button'
 import ScheduleInterviewForm from '../components/candidates/ScheduleInterviewForm'
 import FeedbackForm from '../components/candidates/FeedbackForm'
 import HireRejectActions from '../components/candidates/HireRejectActions'
+import GenerateDocumentsForm from '../components/candidates/GenerateDocumentsForm'
 
 type CandidateStatus =
   | 'Applied'
@@ -110,10 +111,7 @@ const fetchProfile = async (id: string): Promise<ProfileResponse> => {
   return response.data
 }
 
-const generateOffer = async (id: string) => {
-  const response = await api.post(`/candidates/${id}/offer`)
-  return response.data
-}
+
 
 function formatDateTime(value: string): string {
   if (!value) return '—'
@@ -192,8 +190,8 @@ const recommendationBadge = (recommendation?: string) => {
 
 export default function CandidateProfile() {
   const { id = '' } = useParams<{ id: string }>()
-  const queryClient = useQueryClient()
   const [showSchedule, setShowSchedule] = useState(false)
+  const [showGenerateDocs, setShowGenerateDocs] = useState(false)
   const [feedbackInterviewId, setFeedbackInterviewId] = useState<string | null>(
     null,
   )
@@ -204,12 +202,7 @@ export default function CandidateProfile() {
     enabled: id.length > 0,
   })
 
-  const offerMutation = useMutation({
-    mutationFn: () => generateOffer(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['candidate', id] })
-    },
-  })
+
 
   const candidate = data?.candidate
   const interviews = data?.interviews ?? []
@@ -323,6 +316,31 @@ export default function CandidateProfile() {
             </a>
           </div>
         )}
+
+        {candidate.offer?.offerLetterUrl && (
+          <div className="mt-4 flex flex-wrap gap-4">
+            <a
+              href={`${API_BASE_URL}${candidate.offer.offerLetterUrl}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:underline"
+            >
+              <Award className="h-4 w-4" />
+              Download offer letter
+            </a>
+            {candidate.offer.ndaUrl && (
+              <a
+                href={`${API_BASE_URL}${candidate.offer.ndaUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:underline"
+              >
+                <FileText className="h-4 w-4" />
+                Download NDA
+              </a>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
@@ -341,27 +359,27 @@ export default function CandidateProfile() {
           {generateOfferVisible && (
             <Button
               variant="secondary"
-              onClick={() => offerMutation.mutate()}
-              disabled={offerMutation.isPending}
+              onClick={() => setShowGenerateDocs((prev) => !prev)}
               className="flex items-center gap-2"
             >
               <Award className="h-4 w-4" />
-              {offerMutation.isPending
-                ? 'Generating...'
-                : 'Generate Offer Documents'}
+              {showGenerateDocs ? 'Cancel' : 'Generate Offer Documents'}
             </Button>
           )}
         </div>
-        {offerMutation.isError && (
-          <p className="mt-3 text-sm text-red-600">
-            Failed to generate offer documents. Please try again.
-          </p>
-        )}
         {(hireVisible || rejectVisible) && (
           <div className="mt-4">
             <HireRejectActions
               candidateId={candidate._id}
               hasOffer={!!candidate.offer?.offerLetterUrl}
+            />
+          </div>
+        )}
+        {showGenerateDocs && (
+          <div className="mt-4">
+            <GenerateDocumentsForm
+              candidateId={candidate._id}
+              onSuccess={() => setShowGenerateDocs(false)}
             />
           </div>
         )}

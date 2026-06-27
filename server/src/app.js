@@ -9,6 +9,7 @@ const authRoutes = require('./routes/auth');
 const jobRoutes = require('./routes/jobs');
 const candidateRoutes = require('./routes/candidates');
 const interviewRoutes = require('./routes/interviews');
+const documentRoutes = require('./routes/documents');
 const applyRoutes = require('./routes/apply');
 
 const app = express();
@@ -28,6 +29,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/candidates', candidateRoutes);
 app.use('/api/interviews', interviewRoutes);
+app.use('/api/documents', documentRoutes);
 app.use('/api/apply', applyRoutes);
 
 const startServer = async () => {

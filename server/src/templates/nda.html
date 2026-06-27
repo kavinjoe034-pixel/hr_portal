@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NDA - {{candidateName}}</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 60px 56px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.6;
+      color: #1f2937;
+      margin: 0;
+      padding: 0;
+    }
+
+    .header {
+      border-bottom: 3px solid #2563eb;
+      padding-bottom: 18px;
+      margin-bottom: 36px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      background: #2563eb;
+      color: #ffffff;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .company-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: #111827;
+      margin: 0;
+    }
+
+    .document-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2563eb;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0;
+    }
+
+    .meta {
+      margin-bottom: 28px;
+    }
+
+    .meta-row {
+      margin-bottom: 6px;
+    }
+
+    .label {
+      font-weight: 700;
+      color: #374151;
+    }
+
+    .clause {
+      margin-bottom: 16px;
+      text-align: justify;
+    }
+
+    .clause-title {
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 6px;
+    }
+
+    .signature-block {
+      margin-top: 56px;
+      display: flex;
+      justify-content: space-between;
+      gap: 40px;
+    }
+
+    .signature {
+      flex: 1;
+    }
+
+    .signature-line {
+      border-top: 1px solid #9ca3af;
+      width: 100%;
+      max-width: 240px;
+      margin-top: 48px;
+      padding-top: 6px;
+      font-size: 10pt;
+      color: #4b5563;
+    }
+
+    .footer {
+      margin-top: 48px;
+      padding-top: 16px;
+      border-top: 1px solid #e5e7eb;
+      font-size: 9pt;
+      color: #9ca3af;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      <div class="logo">R</div>
+      <div>
+        <p class="company-name">ROVE Hire</p>
+      </div>
+    </div>
+    <p class="document-title">Non-Disclosure Agreement</p>
+  </div>
+
+  <div class="meta">
+    <div class="meta-row"><span class="label">Date:</span> {{date}}</div>
+    <div class="meta-row"><span class="label">Recipient:</span> {{candidateName}}</div>
+  </div>
+
+  <div class="clause">
+    <p class="clause-title">1. Purpose</p>
+    <p>
+      This Mutual Non-Disclosure Agreement ("Agreement") is entered into by and between
+      ROVE Hire ("Disclosing Party") and <strong>{{candidateName}}</strong> ("Recipient")
+      to protect the confidentiality of proprietary information disclosed during the
+      recruitment and onboarding process.
+    </p>
+  </div>
+
+  <div class="clause">
+    <p class="clause-title">2. Confidential Information</p>
+    <p>
+      "Confidential Information" means any and all non-public, proprietary, or confidential
+      information disclosed by either party, including but not limited to business plans,
+      product roadmaps, technical data, customer lists, financial information, and trade secrets.
+    </p>
+  </div>
+
+  <div class="clause">
+    <p class="clause-title">3. Obligations of Recipient</p>
+    <p>
+      Recipient agrees to hold all Confidential Information in strict confidence and not disclose
+      such information to any third parties without the prior written consent of the Disclosing Party.
+      Recipient further agrees not to use Confidential Information for any purpose other than
+      evaluating the employment opportunity with ROVE Hire.
+    </p>
+  </div>
+
+  <div class="clause">
+    <p class="clause-title">4. Term</p>
+    <p>
+      This Agreement shall remain in effect for a period of two (2) years from the date of execution.
+      The obligations of confidentiality shall survive termination of this Agreement for so long as
+      the Confidential Information remains confidential.
+    </p>
+  </div>
+
+  <div class="clause">
+    <p class="clause-title">5. Return of Information</p>
+    <p>
+      Upon request, Recipient shall promptly return or destroy all materials containing Confidential
+      Information and certify such return or destruction in writing.
+    </p>
+  </div>
+
+  <div class="signature-block">
+    <div class="signature">
+      <p class="clause-title">For ROVE Hire</p>
+      <div class="signature-line">Authorized Representative / Date</div>
+    </div>
+    <div class="signature">
+      <p class="clause-title">Recipient</p>
+      <div class="signature-line">{{candidateName}} / Date</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    ROVE Hire — Confidential Non-Disclosure Agreement
+  </div>
+</body>
+</html>

@@ -6,7 +6,6 @@ const {
   createCandidate,
   getProfile,
   updateStatus,
-  generateOffer,
 } = require('../controllers/candidateController');
 
 const router = express.Router();
@@ -17,6 +16,5 @@ router.get('/', listCandidates);
 router.post('/', upload.single('resume'), handleMulterError, createCandidate);
 router.get('/:id', getProfile);
 router.patch('/:id/status', updateStatus);
-router.post('/:id/offer', generateOffer);
 
 module.exports = router;
