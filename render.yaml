@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: rove-hire
+    runtime: node
+    plan: standard
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: UPLOAD_DIR
+        value: uploads
+    disk:
+      name: uploads
+      mountPath: /opt/render/project/src/server/uploads
+      sizeGB: 1

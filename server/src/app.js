@@ -32,6 +32,14 @@ app.use('/api/interviews', interviewRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/apply', applyRoutes);
 
+if (process.env.NODE_ENV === 'production') {
+  const staticPath = path.join(__dirname, '../../client/dist');
+  app.use(express.static(staticPath));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(staticPath, 'index.html'));
+  });
+}
+
 const startServer = async () => {
   try {
     await connectDB();

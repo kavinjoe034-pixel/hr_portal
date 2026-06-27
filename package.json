@@ -1,0 +1,14 @@
+{
+  "name": "rove-hire",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ROVE Hire - internal recruitment web app",
+  "scripts": {
+    "build": "cd client && npm install && npm run build && cd ../server && npm install",
+    "start": "cd server && npm start",
+    "seed": "cd server && npm run seed"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
