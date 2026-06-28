@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { FileText, Download, Loader2 } from 'lucide-react'
-import api, { API_BASE_URL } from '../../lib/api'
+import api from '../../lib/api'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 
@@ -153,7 +153,7 @@ export default function GenerateDocumentsForm({
           <p className="mb-2 text-sm font-medium text-green-800">Documents generated successfully</p>
           <div className="flex flex-wrap gap-3">
             <a
-              href={`${API_BASE_URL}${generatedDocs.offerUrl}`}
+              href={`${api}${generatedDocs.offerUrl}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:underline"
@@ -162,7 +162,7 @@ export default function GenerateDocumentsForm({
               Download offer letter
             </a>
             <a
-              href={`${API_BASE_URL}${generatedDocs.ndaUrl}`}
+              href={`${api}${generatedDocs.ndaUrl}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:underline"

@@ -5,6 +5,8 @@ const TimelineEvent = require('../models/TimelineEvent');
 const Job = require('../models/Job');
 const { logEvent } = require('../utils/timeline');
 const { clientUrl } = require('../config/env');
+const { uploadResumeToCloudinary } = require('../services/cloudinaryService');
+const path = require('path');
 
 const FOURTEEN_DAYS_MS = 14 * 24 * 60 * 60 * 1000;
 
@@ -59,18 +61,28 @@ const createCandidate = async (req, res) => {
     }
 
     const job = await Job.findById(jobId.trim());
+
     if (!job) {
       return res.status(404).json({ message: 'Job not found' });
     }
 
     if (job.status === 'Closed') {
-      return res.status(400).json({ message: 'Job is closed and cannot accept new candidates' });
+      return res.status(400).json({
+        message: 'Job is closed and cannot accept new candidates',
+      });
     }
 
-    const resumeUrl = `/uploads/${req.file.filename}`;
+    // Upload resume to Cloudinary
+    const resumeUrl = await uploadResumeToCloudinary(
+      req.file.path,
+      `${Date.now()}-${path.parse(req.file.originalname).name}`,
+      'rove-hire/resumes'
+    );
 
     const magicToken = crypto.randomBytes(32).toString('hex');
     const magicTokenExpiresAt = new Date(Date.now() + FOURTEEN_DAYS_MS);
+
+    console.log("resumeurl",resumeUrl);
 
     const candidate = await Candidate.create({
       name: name.trim(),
@@ -95,16 +107,24 @@ const createCandidate = async (req, res) => {
 
     const magicLink = `${clientUrl}/apply/${magicToken}`;
 
-    res.status(201).json({
-      candidate: await Candidate.findById(candidate._id).populate('jobId', 'title').lean(),
+    return res.status(201).json({
+      candidate: await Candidate.findById(candidate._id)
+        .populate('jobId', 'title')
+        .lean(),
       magicLink,
     });
   } catch (error) {
-    console.error('createCandidate error:', error.message);
+    console.error('createCandidate error:', error);
+
     if (error.message === 'Only PDF files are allowed') {
-      return res.status(400).json({ message: 'Only PDF files are allowed' });
+      return res.status(400).json({
+        message: 'Only PDF files are allowed',
+      });
     }
-    res.status(500).json({ message: 'Failed to create candidate' });
+
+    return res.status(500).json({
+      message: 'Failed to create candidate',
+    });
   }
 };
 

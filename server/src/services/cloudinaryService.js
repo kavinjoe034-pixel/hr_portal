@@ -1,5 +1,6 @@
 const cloudinary = require('cloudinary').v2;
 const { cloudinaryCloudName, cloudinaryApiKey, cloudinaryApiSecret } = require('../config/env');
+const fs = require("fs");
 
 // Configure Cloudinary
 cloudinary.config({
@@ -24,7 +25,7 @@ const uploadPdfToCloudinary = async (pdfBuffer, fileName, folder = 'rove-hire/do
           public_id: fileName,
           folder: folder,
           format: 'pdf',
-          access_mode: 'token', // Restricted access
+          // access_mode: 'token', // Restricted access
         },
         (error, result) => {
           if (error) {
@@ -60,8 +61,39 @@ const deletePdfFromCloudinary = async (publicId) => {
   }
 };
 
+const uploadResumeToCloudinary = async (
+  filePath,
+  fileName,
+  folder = 'rove-hire/resumes'
+) => {
+  try {
+    const result = await cloudinary.uploader.upload(filePath, {
+      resource_type: 'auto',
+      folder,
+      public_id: fileName,
+      overwrite: true,
+      format: 'pdf',
+    });
+
+    console.log("result is: ",result);
+    // Delete local file after successful upload
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    return result.secure_url;
+  } catch (error) {
+    // Delete local file even if upload fails
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    throw error;
+  }
+};
 module.exports = {
   uploadPdfToCloudinary,
   deletePdfFromCloudinary,
   cloudinary,
+  uploadResumeToCloudinary
 };

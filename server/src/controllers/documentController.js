@@ -6,6 +6,7 @@ const TERMINAL_STATUSES = ['Hired', 'Rejected'];
 
 const generateDocuments = async (req, res) => {
   try {
+   
     const { id } = req.params;
     const {
       roleTitle,
@@ -17,6 +18,7 @@ const generateDocuments = async (req, res) => {
     } = req.body;
 
     const candidate = await Candidate.findById(id).populate('jobId', 'title');
+    console.log(" ==== candiate",candidate);
 
     if (!candidate) {
       return res.status(404).json({ message: 'Candidate not found' });
@@ -42,10 +44,14 @@ const generateDocuments = async (req, res) => {
       location,
     };
 
+    console.log("offerData",offerData);
+
     const [offerLetterUrl, ndaUrl] = await Promise.all([
       generateOfferLetter(offerData),
       generateNda({ candidateName: candidate.name }),
     ]);
+
+
 
     candidate.offer = {
       roleTitle: roleTitle || jobTitle,
@@ -73,6 +79,7 @@ const generateDocuments = async (req, res) => {
       }
     );
 
+    console.log("========>",offerLetterUrl, ndaUrl);
     return res.status(200).json({
       offerUrl: offerLetterUrl,
       ndaUrl,

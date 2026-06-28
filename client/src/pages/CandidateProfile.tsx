@@ -22,7 +22,7 @@ import {
   ArrowLeft,
   CheckCircle2,
 } from 'lucide-react'
-import api, { API_BASE_URL } from '../lib/api'
+import api from '../lib/api'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import ScheduleInterviewForm from '../components/candidates/ScheduleInterviewForm'
@@ -303,7 +303,7 @@ export default function CandidateProfile() {
         {candidate.resumeUrl && (
           <div className="mt-6">
             <a
-              href={`${API_BASE_URL}${candidate.resumeUrl}`}
+              href={`${candidate.resumeUrl}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:underline"
@@ -320,7 +320,7 @@ export default function CandidateProfile() {
         {candidate.offer?.offerLetterUrl && (
           <div className="mt-4 flex flex-wrap gap-4">
             <a
-              href={`${API_BASE_URL}${candidate.offer.offerLetterUrl}`}
+              href={`${candidate.offer.offerLetterUrl}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:underline"
@@ -330,7 +330,7 @@ export default function CandidateProfile() {
             </a>
             {candidate.offer.ndaUrl && (
               <a
-                href={`${API_BASE_URL}${candidate.offer.ndaUrl}`}
+                href={`${candidate.offer.ndaUrl}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:underline"
