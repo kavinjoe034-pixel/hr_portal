@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import api from '../lib/api'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
@@ -90,6 +90,15 @@ export default function Register() {
             {isSubmitting ? 'Creating account...' : 'Create account'}
           </Button>
         </form>
+
+        <div className="text-center text-sm">
+          <p className="text-gray-600">
+            Already have an account?{' '}
+            <Link to="/login" className="font-medium text-blue-600 hover:text-blue-700">
+              Login here
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )
