@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const puppeteer = require('puppeteer');
 const { PDFDocument, rgb, StandardFonts } = require('pdf-lib');
 const { uploadDir } = require('../config/env');
+const { uploadPdfToCloudinary } = require('./cloudinaryService');
 
 const TEMPLATES_DIR = path.join(__dirname, '..', 'templates');
 
@@ -76,8 +77,8 @@ const generatePdf = async (templateName, data) => {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
 
-  const filename = `${templateName}-${uuidv4()}.pdf`;
-  const outputPath = path.join(uploadDir, filename);
+  const filename = `${templateName}-${uuidv4()}`;
+  const outputPath = path.join(uploadDir, `${filename}.pdf`);
 
   try {
     const browser = await launchBrowser();
@@ -93,7 +94,15 @@ const generatePdf = async (templateName, data) => {
     } finally {
       await browser.close();
     }
-    return `/uploads/${filename}`;
+
+    // Read the generated PDF and upload to Cloudinary
+    const pdfBuffer = fs.readFileSync(outputPath);
+    const cloudinaryUrl = await uploadPdfToCloudinary(pdfBuffer, filename, 'rove-hire/documents');
+
+    // Delete local file after successful upload
+    fs.unlinkSync(outputPath);
+
+    return cloudinaryUrl;
   } catch (error) {
     console.warn('Puppeteer PDF generation failed, using pdf-lib fallback:', error.message);
     return generateFallbackPdf(templateName, data, outputPath);
@@ -148,7 +157,7 @@ const generateFallbackPdf = async (templateName, data, outputPath) => {
     addLine(`Candidate: ${data.candidateName || ''}`);
     y -= 10;
     addWrapped(`Dear ${data.candidateName || 'Candidate'},`);
-    addWrapped(`We are pleased to offer you the position of ${data.role || 'Role'} at ROVE. This offer includes a compensation package of ${data.salaryAmount || ''}, reporting to ${data.reportingManager || 'Hiring Manager'}, based in ${data.location || 'Remote / TBD'}. Your expected start date is ${data.startDate || 'TBD'}.`);
+    addWrapped(`We are pleased to offer you the position of ${data.role || 'Role'} at ROVE. This offer includes a compensation package of ${data.salaryAmount || ''}, reporting to ${data.reportingManager || 'Hiring Manager'}.`);
     addWrapped('This offer is contingent upon the successful completion of reference checks and your acceptance of the accompanying NDA.');
     y -= 20;
     addLine('Accepted by candidate: _________________________', { size: 11 });
@@ -161,7 +170,7 @@ const generateFallbackPdf = async (templateName, data, outputPath) => {
     addLine(`Date: ${data.date || formatDate(new Date())}`);
     addLine(`Party: ${data.candidateName || ''}`);
     y -= 10;
-    addWrapped('This Non-Disclosure Agreement ("Agreement") is entered into by and between ROVE and the party named above. The party agrees to hold all confidential information disclosed by ROVE in strict confidence and not disclose such information to any third parties without prior written consent.');
+    addWrapped('This Non-Disclosure Agreement ("Agreement") is entered into by and between ROVE and the party named above. The party agrees to hold all confidential information disclosed by ROVE in strict confidence.');
     addWrapped('This agreement shall remain in effect for the duration of the relationship and survive termination for a period of two years.');
     y -= 20;
     addLine('Signed: _________________________', { size: 11 });
@@ -172,7 +181,16 @@ const generateFallbackPdf = async (templateName, data, outputPath) => {
 
   const pdfBytes = await pdfDoc.save();
   fs.writeFileSync(outputPath, pdfBytes);
-  return `/uploads/${path.basename(outputPath)}`;
+
+  // Upload fallback PDF to Cloudinary
+  const filename = path.basename(outputPath, '.pdf');
+  const pdfBuffer = fs.readFileSync(outputPath);
+  const cloudinaryUrl = await uploadPdfToCloudinary(pdfBuffer, filename, 'rove-hire/documents');
+
+  // Delete local file after successful upload
+  fs.unlinkSync(outputPath);
+
+  return cloudinaryUrl;
 };
 
 const generateOfferLetter = async (data) => {
