@@ -15,7 +15,7 @@ const applyRoutes = require('./routes/apply');
 const app = express();
 
 app.use(helmet());
-app.use(cors({ origin: clientUrl }));
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
