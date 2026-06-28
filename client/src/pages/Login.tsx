@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../lib/api'
 import { Button } from '../components/ui/Button'
@@ -70,6 +70,15 @@ export default function Login() {
             {isSubmitting ? 'Signing in...' : 'Sign in'}
           </Button>
         </form>
+
+        <div className="text-center text-sm">
+          <p className="text-gray-600">
+            Don't have an account?{' '}
+            <Link to="/register" className="font-medium text-blue-600 hover:text-blue-700">
+              Register here
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )
