@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import type { ReactNode } from 'react'
 import Login from './pages/Login'
+import Register from './pages/Register'
 import Layout from './components/layout/Layout'
 import Dashboard from './pages/Dashboard'
 import Jobs from './pages/Jobs'
@@ -30,6 +31,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route path="/apply/:token" element={<Apply />} />
       <Route
         element={
